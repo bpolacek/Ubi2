@@ -1,11 +1,30 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 const Contact = ({contact}) => {
     if(!contact) {
         return null;
     }
-    console.log(contact.phoneNumbers[0].number)
+
+    const handleFriendRequest = async () =>{
+        const token = 'YOUR_AUTH_TOKEN'; // replace with your actual auth token
+        const data = { requester_id: 123, requested_id: 456 }; // replace with actual requester_id and requested_id
+        const response = await fetch('http://10.129.3.45:5555/friend_requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(errorData);
+        } else {
+          console.log('Friend request sent successfully');
+        }
+      };
   return (
 <View style={styles.contactCon}>
 <View style={styles.imgCon}>
@@ -16,15 +35,16 @@ const Contact = ({contact}) => {
   </View>
 </View>
 <View style={styles.contactDat}>
-  <Text style={styles.name}>
-    {contact?.name} 
-  </Text>
-  {contact?.phoneNumbers.map((phoneNumber) => (
-    <Text style={styles.phoneNumber} key={phoneNumber.id}>
-      {phoneNumber.number}
-    </Text>
+        <Text style={styles.name}>{contact?.name}</Text>
+        {contact?.phoneNumbers && contact?.phoneNumbers.map((phoneNumber) => (
+          <Text style={styles.phoneNumber} key={phoneNumber.id}>
+            {phoneNumber.number}
+          </Text>
   ))}
 </View>
+<TouchableOpacity style={styles.addButton} onPress={handleFriendRequest}>
+    <Text>Add</Text>
+</TouchableOpacity>
 </View>
 );
 };
@@ -60,6 +80,20 @@ const styles = StyleSheet.create({
   },
   phoneNumber: {
     color: '#888',
+  },
+  addButton: {
+    backgroundColor: '#f5793b',
+    width: 50,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  buttonText: {
+   color: '#0d0f13',
+   fontSize: 16,
+   fontWeight: "bold"
   },
 });
 export default Contact;

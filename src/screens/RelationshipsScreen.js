@@ -8,6 +8,7 @@ const RelationshipsScreen = () => {
     const[contacts,setContacts] = useState([])
     const[permission,setPermission] = useState(false)
     const[index, setIndex] = useState(0);
+    const[sortedContacts,setSortedContacts]=useState([])
   
     useEffect(() => {
       (async () => {
@@ -15,11 +16,24 @@ const RelationshipsScreen = () => {
         if (status === 'granted') {
           setPermission(true)
           const { data } = await Contacts.getContactsAsync({
-            fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.FirstName, Contacts.Fields.LastName],
+            // fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.FirstName, Contacts.Fields.LastName],
           });
-          console.log(`${data.Contacts} data from Contacts`)
           if (data.length > 0) {
+            // console.log(contacts.map(contact => contact.name).sort());
             setContacts(data)
+            // console.log(contacts.sort((a, b) => a.name.localeCompare(b.name)))
+            // console.log(contacts.map(contact => contact.name).sort());
+            // const sortedData = contacts.map(contact => contact).sort();
+            const sortedData = data.slice().sort((a, b) => {
+              if (a.name && b.name) {
+                return a.name.localeCompare(b.name);
+              }
+              return 0;
+            });
+            // console.log(sortedData)
+            setSortedContacts(sortedData)
+            // console.log(sortedData)
+          
           }
         } else {
           setPermission(false)
@@ -31,37 +45,70 @@ const RelationshipsScreen = () => {
       const recordId = item?.recordId;
       return recordId ? recordId.toString() : index.toString();
     };
-  
-    const renderItem = ({item, index})=>{
-      console.log('Contact data', item);
-      return <Contact contact={item} />
-    }
-  return (
-    <View style={styles.container}>
-      <Text>Relationships Screen</Text>
-      {permission ? (
+
+    const RelationshipsScene = () => (
+      <View style={styles.container}>
+      <Text>Add Relationships</Text>
+    </View>
+    );
+
+    const AddRelationshipScene = () => (
+
       <FlatList
-      data={contacts}
-      renderItem={renderItem}
+      data={sortedContacts}
+      renderItem={({ item }) => <Contact contact={item} />}
       keyExtractor={keyExtractor}
       style={styles.list}
+    />
+    );
+  
+    // const renderItem = ({item, index})=>{
+    //   console.log('Contact data', item);
+    //   return <Contact contact={item} />
+    // }
+
+    const renderTabBar = (props) => (
+      <TabBar
+        {...props}
+        indicatorStyle={styles.tabIndicator}
+        style={styles.tabBar}
+        labelStyle={styles.tabLabel}
       />
-      ) : (
-        <Text>We need permission to access your contacts.</Text>
-      )}
-    </View>
-  );
+    );
+
+  return (
+
+<View style={styles.container}>
+<TabView
+  navigationState={{ index, routes: [{ key: 'relationships', title: 'Relationships' }, { key: 'addRelationship', title: 'Add Relationship' }] }}
+  renderScene={SceneMap({
+    relationships: RelationshipsScene,
+    addRelationship: AddRelationshipScene,
+  })}
+  onIndexChange={setIndex}
+  initialLayout={{ width: '100%' }}
+  renderTabBar={renderTabBar}
+/>
+</View>
+);
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   list:{
     flex:1,
-    width:"100%"
+  },
+  tabBar:{
+    backgroundColor:'#f1f1f1',
+    
+  },
+  tabIndicator: {
+    backgroundColor: "#333",
+  },
+  tabLabel: {
+    color: 'black',
   }
 });
 
