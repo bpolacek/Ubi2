@@ -1,96 +1,111 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as Contacts from 'expo-contacts'
 import Contact from './Contact';
 
 const RelationshipsScreen = () => {
-    const[contacts,setContacts] = useState([])
-    const[permission,setPermission] = useState(false)
-    const[index, setIndex] = useState(0);
-    const[sortedContacts,setSortedContacts]=useState([])
-  
-    useEffect(() => {
-      (async () => {
-        const { status } = await Contacts.requestPermissionsAsync();
-        if (status === 'granted') {
-          setPermission(true)
-          const { data } = await Contacts.getContactsAsync({
-            // fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.FirstName, Contacts.Fields.LastName],
-          });
-          if (data.length > 0) {
-            // console.log(contacts.map(contact => contact.name).sort());
-            setContacts(data)
-            // console.log(contacts.sort((a, b) => a.name.localeCompare(b.name)))
-            // console.log(contacts.map(contact => contact.name).sort());
-            // const sortedData = contacts.map(contact => contact).sort();
-            const sortedData = data.slice().sort((a, b) => {
+  const [contacts, setContacts] = useState([]);
+  const [permission, setPermission] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [sortedContacts, setSortedContacts] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === 'granted') {
+        setPermission(true);
+        const { data } = await Contacts.getContactsAsync();
+        if (data.length > 0) {
+          setContacts(data);
+          const sortedData = data
+            .slice()
+            .sort((a, b) => {
               if (a.name && b.name) {
                 return a.name.localeCompare(b.name);
               }
               return 0;
             });
-            // console.log(sortedData)
-            setSortedContacts(sortedData)
-            // console.log(sortedData)
-          
-          }
-        } else {
-          setPermission(false)
+          setSortedContacts(sortedData);
         }
-      })();
-    }, []);
-  
-    const keyExtractor = (item,index) =>{
-      const recordId = item?.recordId;
-      return recordId ? recordId.toString() : index.toString();
-    };
+      } else {
+        setPermission(false);
+      }
+    })();
+  }, []);
 
-    const RelationshipsScene = () => (
-      <View style={styles.container}>
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const filteredContacts = sortedContacts.filter((contact) =>
+    contact.name && contact.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const keyExtractor = (item, index) => {
+    const recordId = item?.recordId;
+    return recordId ? recordId.toString() : index.toString();
+  };
+
+  const RelationshipsScene = () => (
+    <View style={styles.container}>
       <Text>Add Relationships</Text>
     </View>
+  );
+
+  const AddRelationshipScene = () => {
+    return (
+      <View style={styles.container}>
+        <View style={styles.searchBarContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search contacts..."
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+        </View>
+        <FlatList
+          data={filteredContacts}
+          renderItem={({ item }) => <Contact contact={item} />}
+          keyExtractor={keyExtractor}
+          style={styles.list}
+          keyboardDismissMode='none'
+        />
+      </View>
     );
+  };
 
-    const AddRelationshipScene = () => (
-
-      <FlatList
-      data={sortedContacts}
-      renderItem={({ item }) => <Contact contact={item} />}
-      keyExtractor={keyExtractor}
-      style={styles.list}
+  const renderTabBar = (props) => (
+    <TabBar
+      {...props}
+      indicatorStyle={styles.tabIndicator}
+      style={styles.tabBar}
+      labelStyle={styles.tabLabel}
     />
-    );
-  
-    // const renderItem = ({item, index})=>{
-    //   console.log('Contact data', item);
-    //   return <Contact contact={item} />
-    // }
-
-    const renderTabBar = (props) => (
-      <TabBar
-        {...props}
-        indicatorStyle={styles.tabIndicator}
-        style={styles.tabBar}
-        labelStyle={styles.tabLabel}
-      />
-    );
+  );
 
   return (
-
-<View style={styles.container}>
-<TabView
-  navigationState={{ index, routes: [{ key: 'relationships', title: 'Relationships' }, { key: 'addRelationship', title: 'Add Relationship' }] }}
-  renderScene={SceneMap({
-    relationships: RelationshipsScene,
-    addRelationship: AddRelationshipScene,
-  })}
-  onIndexChange={setIndex}
-  initialLayout={{ width: '100%' }}
-  renderTabBar={renderTabBar}
-/>
-</View>
-);
+    <View style={styles.container}>
+      <TabView
+        navigationState={{
+          index,
+          routes: [
+            { key: 'relationships', title: 'Relationships' },
+            { key: 'addRelationship', title: 'Add Relationship' },
+          ],
+        }}
+        renderScene={SceneMap({
+          relationships: RelationshipsScene,
+          addRelationship: AddRelationshipScene,
+        })}
+        onIndexChange={setIndex}
+        initialLayout={{ width: '100%' }}
+        renderTabBar={renderTabBar}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -109,6 +124,10 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     color: 'black',
+  },
+  searchBarContainer:{
+    padding: 5,
+    height:30
   }
 });
 
