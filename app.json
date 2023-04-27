@@ -9,7 +9,13 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "plugins":[
+        [
+          "expo-contacts",
+          {"contactsPermission":"Allow Ubi to access your contacts."}
+        ]
+      ]
     },
     "assetBundlePatterns": [
       "**/*"

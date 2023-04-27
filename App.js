@@ -10,6 +10,8 @@ import AccountScreen from './src/screens/AccountScreen';
 import RelationshipsScreen from './src/screens/RelationshipsScreen';
 import { AuthProvider } from './src/context/AuthContext'
 import AppNav from './src/navigation/AppNav';
+import * as Contacts from 'expo-contacts'
+import Contact from './src/screens/Contact';
 
 export default function App() {
 

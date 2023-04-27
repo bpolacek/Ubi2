@@ -7,7 +7,6 @@ from functools import wraps
 
 
 api = Api(app)
-# app.config['SECRET_KEY'] = 'secretkey123'
 
 def token_required(f):
     @wraps(f)
@@ -59,7 +58,8 @@ class Login(Resource):
         if user and user.authenticate(password):  # use the check_password method
             try:
                 auth_token = user.encode_auth_token(user.id)
-                return {'auth_token': auth_token}, 200  # Decode the byte string to normal string
+                user_data = {'id':user.id, 'email':user.email, 'password':password}
+                return {'auth_token': auth_token, 'user_data':user_data}, 200  # Decode the byte string to normal string
             except Exception as e:
                 return {"message": str(e)}, 500
         else:

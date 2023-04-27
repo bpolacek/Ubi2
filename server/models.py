@@ -6,7 +6,6 @@ from config import bcrypt, db, app
 import jwt as pyjwt
 from datetime import datetime, timedelta, timezone
 
-# app.secret_key = 'secretkey123'
 
 class User(db.Model, SerializerMixin):
     __tablename__="users"
