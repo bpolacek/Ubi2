@@ -1,30 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 
 import MapScreen from './src/screens/MapScreen';
 import MessagesScreen from './src/screens/MessagesScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import RelationshipsScreen from './src/screens/RelationshipsScreen';
-import SignIns from './src/screens/SignIns';
-
-const Tab = createBottomTabNavigator();
+import { AuthProvider } from './src/context/AuthContext'
+import AppNav from './src/navigation/AppNav';
 
 export default function App() {
 
+  const[user,setUser]=useState(null)
+
+  const handleSignIn = () =>{
+    setIsAuthenticated(true);
+  }
+  
+  const handleUser = (userData) => {
+    setUser(userData)
+  }
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Map" component={MapScreen} />
-        <Tab.Screen name="Relationships" component={RelationshipsScreen} />
-        <Tab.Screen name="Messages" component={MessagesScreen} />
-        <Tab.Screen name="Account" component={AccountScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
+    <>
+    <AuthProvider>
+    <StatusBar style="auto" />
+      <AppNav />
+    </AuthProvider>
+  </>
+);
 }
 
 const styles = StyleSheet.create({

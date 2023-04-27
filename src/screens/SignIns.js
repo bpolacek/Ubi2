@@ -1,40 +1,47 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView} from 'react-native'
-import Logo from "../../Logo.png"
+import React, { useState, useContext, useEffect } from "react";
+import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView, TouchableOpacity} from 'react-native'
+import Logo from "../../assets/images/Logosmall.png"
 import CustomInput from "../components/CustomInput/CustomInput";
 import CustomButton from "../components/CustomButton";
+import { useNavigation } from '@react-navigation/native'
+import { AuthContext } from "../context/AuthContext";
 
 
 const SignIns = () => {
-    const[emailaddress, setEmailAddress] =useState('')
+    const[email, setEmail] =useState('')
     const[password, setPassword]=useState('')
-    const {height} =useWindowDimensions();
+    const {height} = useWindowDimensions();
+    const navigation = useNavigation();
+    const {login} = useContext(AuthContext);
 
-    const onSignInPress = () =>{
-        console.warn("Sign In");
+    const handleUserSignIn = () => {
+    
+                navigation.navigate('Map');
     }
+
     const onForgotPasswordPress = () =>{
-        console.warn("Forgot Password")
+        navigation.navigate('Forgot Password')
     }
     const onSignUpPress = () =>{
-        console.warn("User Signup")
+        navigation.navigate('Sign Up')
     }
     return(
         <ScrollView>
         <View style={styles.root}>
-            <Image source={Logo} styles={[styles.logo, {height:height * 0.3}]} resizeMode="contain" />
+            <Image source={Logo} style={[styles.logo, {height: height * 0.4}]} resizeMode="contain" />
 
         <CustomInput 
             placeholder="Email Address" 
-            value={emailaddress} 
-            setValue={setEmailAddress}/>
+            value={email} 
+            onChangeText={text => setEmail(text)}/>
+
         <CustomInput 
             placeholder="Password" 
             value={password} 
-            setValue={setPassword} 
+            onChangeText={text=>setPassword(text)} 
             secureTextEntry={true}/>
 
-        <CustomButton text="Sign In" onPress={onSignInPress}/>
+        <CustomButton text="Sign In" onPress={()=>{login(email, password)}}/>
         <CustomButton text="Forgot Password" onPress={onForgotPasswordPress} type="TERTIARY"/>
         <CustomButton text="Don't have an Account? Create One" onPress={onSignUpPress} type="TERTIARY"/>
         </View>
@@ -48,8 +55,8 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     logo: {
-        width:'70%',
-        maxWidth: 350,
+        width:'40%',
+        maxWidth: 200,
         maxHeight:200,
     },
 });

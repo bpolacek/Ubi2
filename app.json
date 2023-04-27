@@ -33,6 +33,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "infoPlist":{
+      "NSAppTransportSecurity":{
+        "NSAllowsArbitraryLoads":true
+      }
     }
   }
 }

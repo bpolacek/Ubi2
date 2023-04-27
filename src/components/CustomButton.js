@@ -22,13 +22,21 @@ const styles = StyleSheet.create({
     container_PRIMARY:{
         backgroundColor: "#F5793B",
     },
+    container_SECONDARY:{
+        borderColor: "F5793B",
+        borderWidth: 2,
+
+    },
     container_TERTIARY: {},
     text:{
         fontWeight: 'bold',
         color: 'white'
     },
+    text_SECONDARY: {
+        color: 'orange'
+    },
     text_TERTIARY: {
         color: 'grey'
     }
 })
-export default CustomButton
+export default CustomButton;
