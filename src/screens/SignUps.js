@@ -34,6 +34,11 @@ const SignUps = () => {
             })
           });
           console.log("hello")
+          const responseData = await response.json();
+
+          if(response.status === 200) {
+            await AsyncStorage.setItem('authToken', responseData.auth_token);
+          }
 
           return response.status;
 

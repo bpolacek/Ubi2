@@ -29,10 +29,11 @@ class User(db.Model, SerializerMixin):
     def password_hash(self, password):
             password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
             self._password_hash = password_hash.decode('utf-8')
-
+    
     def authenticate(self, password):
-         return bcrypt.check_password_hash(
-             self._password_hash, password.encode('utf-8'))
+        is_authenticated = bcrypt.check_password_hash(self._password_hash.encode('utf-8'), password.encode('utf-8'))
+        print(f'Is authenticated: {is_authenticated}')
+        return is_authenticated
     
     def encode_auth_token(self, user_id):
         try:

@@ -37,13 +37,16 @@ class Signup(Resource):
                 last_name = data['last_name'],
                 email = data['email'],
                 phone_number=data['phone_number'],
-                password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+                password_hash = data['password']
             )
         
         db.session.add(new_user)
         db.session.commit()
+
+        auth_token = new_user.encode_auth_token(new_user.id)
+
         
-        response = make_response(new_user.to_dict(), 200)
+        response = make_response({'auth_token':auth_token, 'user': new_user.to_dict()}, 200)
         return response
 
 api.add_resource(Signup, '/signup')
@@ -54,15 +57,23 @@ class Login(Resource):
 
         user = User.query.filter_by(email=data['email']).first()
         password = data['password']
+        print(password)
+        print("User Object", user.email)
 
-        if user and user.authenticate(password):  # use the check_password method
+        if user:
+            print("User found")
+        if user.authenticate(password):  # use the check_password method
+            print("Password authenticated.")
             try:
                 auth_token = user.encode_auth_token(user.id)
+                print(auth_token)
                 user_data = {'id':user.id, 'email':user.email, 'password':password}
                 return {'auth_token': auth_token, 'user_data':user_data}, 200  # Decode the byte string to normal string
             except Exception as e:
+                print(e)
                 return {"message": str(e)}, 500
         else:
+            print("User not found")
             return {"message": "Invalid email or password"}, 401
 
 api.add_resource(Login, '/login')

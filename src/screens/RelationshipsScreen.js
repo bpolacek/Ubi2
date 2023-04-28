@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as Contacts from 'expo-contacts'
 import Contact from './Contact';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RelationshipsScreen = () => {
   const [contacts, setContacts] = useState([]);
