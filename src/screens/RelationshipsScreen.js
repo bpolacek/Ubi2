@@ -11,9 +11,38 @@ const RelationshipsScreen = () => {
   const [index, setIndex] = useState(0);
   const [sortedContacts, setSortedContacts] = useState([]);
   const[authenticatedUsers, setIsAuthenticatedUsers] = useState([])
+  const [filteredContacts, setFilteredContacts] = useState([]);
 
   const url = 'http://10.129.3.45:5555/users'
   const authToken = AsyncStorage.getItem('authToken');
+
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+    const phoneNumbers = [...new Set(data.map(user => {
+      // Ensure user.phone_number is not null or undefined before trying to replace
+      return user.phone_number ? user.phone_number.replace(/\D/g, '') : null;
+    }))].filter(Boolean); // Filter out null and undefined values
+
+    const filtered = sortedContacts.filter(contact => {
+      let found = false;
+      if (contact.phoneNumbers) {
+        contact.phoneNumbers.forEach(phone => {
+          // Check if phone.number exists and is a string before trying to call .replace()
+          if (phone.number && typeof phone.number === 'string') {
+            const normalizedPhone = phone.number.replace(/\D/g, '');
+            if (phoneNumbers.includes(normalizedPhone)) {
+              found = true;
+            }
+          }
+        });
+      }
+      return found;
+    });
+    setFilteredContacts(filtered);
+  })
+  .catch(error => console.log(error));
+  // }, [sortedContacts]);
 
   useEffect(() => {
     (async () => {
@@ -45,7 +74,7 @@ const RelationshipsScreen = () => {
     setSearchQuery(query);
   };
 
-  const filteredContacts = sortedContacts.filter((contact) =>
+  const searchedContacts = filteredContacts.filter((contact) =>
     contact.name && contact.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -56,7 +85,7 @@ const RelationshipsScreen = () => {
 
   const RelationshipsScene = () => (
     <View style={styles.container}>
-      <Text>Add Relationships</Text>
+      <Text>Your Relationships</Text>
     </View>
   );
 
@@ -72,7 +101,7 @@ const RelationshipsScreen = () => {
           />
         </View>
         <FlatList
-          data={filteredContacts}
+          data={searchedContacts}
           renderItem={({ item }) => <Contact contact={item} />}
           keyExtractor={keyExtractor}
           style={styles.list}

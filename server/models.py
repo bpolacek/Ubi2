@@ -15,7 +15,7 @@ class User(db.Model, SerializerMixin):
     last_name=db.Column(db.String, nullable=False)
     image=db.Column(db.String)
     email=db.Column(db.String, unique=True, nullable=False)
-    phone_number=db.Column(db.Integer, nullable=False)
+    phone_number=db.Column(db.String, nullable=False)
     _password_hash=db.Column(db.String, nullable=False)
 
     relationships = db.relationship('Relationship', back_populates= 'users')
