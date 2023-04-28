@@ -9,6 +9,10 @@ const RelationshipsScreen = () => {
   const [permission, setPermission] = useState(false);
   const [index, setIndex] = useState(0);
   const [sortedContacts, setSortedContacts] = useState([]);
+  const[authenticatedUsers, setIsAuthenticatedUsers] = useState([])
+
+  const url = 'http://10.129.3.45:5555/users'
+  const authToken = AsyncStorage.getItem('authToken');
 
   useEffect(() => {
     (async () => {

@@ -91,3 +91,15 @@ class Message(db.Model, SerializerMixin):
     user_2=db.Column(db.Integer, db.ForeignKey('users.id'))
 
     users=db.relationship('User', back_populates='messages')
+
+class FriendRequest(db.Model, SerializerMixin):
+    __tablename__="friendrequests"
+
+    id = db.Column(db.Integer, primary_key=True)
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    requested_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    requester = db.relationship('User', foreign_keys=[requester_id])
+    requested = db.relationship('User', foreign_keys=[requested_id])

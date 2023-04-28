@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
@@ -7,7 +8,7 @@ const Contact = ({contact}) => {
     }
 
     const handleFriendRequest = async () =>{
-        const token = 'YOUR_AUTH_TOKEN'; // replace with your actual auth token
+        const token = await AsyncStorage.getItem('authToken');
         const data = { requester_id: 123, requested_id: 456 }; // replace with actual requester_id and requested_id
         const response = await fetch('http://10.129.3.45:5555/friend_requests', {
           method: 'POST',

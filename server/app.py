@@ -1,6 +1,6 @@
 from flask import request, make_response, jsonify, session, Flask
 from flask_restful import Resource, Api, reqparse
-from models import db, User, Relationship, RelationshipType, Message
+from models import db, User, Relationship, RelationshipType, Message, FriendRequest
 from config import app, bcrypt
 from sqlalchemy import or_
 from functools import wraps
@@ -87,13 +87,20 @@ api.add_resource(Users, '/users')
 
 class FriendRequestResource(Resource):
     @token_required
+    def get(self, current_user):
+        requests=FriendRequest.query.all()
+        requests_dict=[request.to_dict() for request in requests]
+        return make_response(
+            requests_dict,
+            200
+        )
     def post(self, current_user):
         parser = reqparse.RequestParser()
         parser.add_argument('requester_id', type=int, required=True, help="Requester ID is required.")
         parser.add_argument('requested_id', type=int, required=True, help="Requested ID is required.")
         args = parser.parse_args()
 
-        friend_request = Relationship(user_1=args['requester_id'], user_2=args['requested_id'], relationship_type=None)
+        friend_request = FriendRequest(requester_id=args['requester_id'], requested_id=args['requested_id'], status='pending')
         db.session.add(friend_request)
         db.session.commit()
         return {"message": "Friend request sent successfully."}, 201
@@ -106,12 +113,12 @@ class FriendRequestResponseResource(Resource):
         parser.add_argument('action', type=str, required=True, help="Action (accept/reject) is required.")
         args = parser.parse_args()
 
-        friend_request = Relationship.query.get(request_id)
+        friend_request = FriendRequest.query.get(request_id)
         if not friend_request:
             return {"message": "Friend request not found."}, 404
 
         if args['action'].lower() == 'accept':
-            friend_request.relationship_type = 1  # Assuming 1 is the 'friend' relationship type
+            friend_request.status = 'accepted'
             db.session.commit()
             return {"message": "Friend request accepted."}, 200
         elif args['action'].lower() == 'reject':
@@ -125,17 +132,45 @@ api.add_resource(FriendRequestResponseResource, '/friend_requests/<int:request_i
 
 
 class DeleteFriendResource(Resource):
+    # @token_required
+    # def delete(self, current_user, friendship_id):
+    #     friendship = Relationship.query.get(friendship_id)
+    #     if not friendship:
+    #         return {"message": "Friendship not found."}, 404
+
+    #     db.session.delete(friendship)
+    #     db.session.commit()
+    #     return {"message": "Friendship deleted successfully."}, 200
     @token_required
     def delete(self, current_user, friendship_id):
-        friendship = Relationship.query.get(friendship_id)
-        if not friendship:
-            return {"message": "Friendship not found."}, 404
+        friend_request = FriendRequest.query.get(friendship_id)
+        if not friend_request:
+            return {"message": "Friend request not found."}, 404
 
-        db.session.delete(friendship)
+        db.session.delete(friend_request)
         db.session.commit()
-        return {"message": "Friendship deleted successfully."}, 200
+        return {"message": "Friend request deleted successfully."}, 200
 
 api.add_resource(DeleteFriendResource, '/friends/<int:friendship_id>')
+
+class Relationships(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_1', type=int, required=True, help="User 1 ID is required.")
+        parser.add_argument('user_2', type=int, required=True, help="User 2 ID is required.")
+        parser.add_argument('relationship_type', type=int, required=True, help="Relationship type is required.")
+        args = parser.parse_args()
+
+        relationship = Relationship(
+            user_1=args['user_1'],
+            user_2=args['user_2'],
+            relationship_type=args['relationship_type']
+        )
+        db.session.add(relationship)
+        db.session.commit()
+        return {"message": "Relationship created successfully."}, 201
+
+api.add_resource(Relationships, '/relationships')
 
 @app.route('/protected', methods=['GET'])
 @token_required
