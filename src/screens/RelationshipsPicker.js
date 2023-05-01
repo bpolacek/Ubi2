@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import RelationshipsPicker from './RelationshipsPicker';
+import { Picker } from '@react-native-picker/picker';
 
-const Relationship = ({ relationship = null }) => {
-  const navigation = useNavigation();
-  const [relationshipType, setRelationshipType] = useState(
-    relationship?.relationship_type || ''
-  );
-
+const RelationshipsPicker = ({ route }) => {
+  const { relationship }=route.params;
+const [relationshipType, setRelationshipType] = useState(relationship.relationship_type || " ");
   const updateRelationshipType = async () => {
     const response = await fetch(
       `http://10.129.3.45:5555/relationships/${relationship.id}`,
@@ -32,48 +28,29 @@ const Relationship = ({ relationship = null }) => {
       console.log('Error updating relationship type');
     }
   };
-
-  const handlePress = () => {
-    navigation.navigate('RelationshipsPicker', {
-        relationshipType,
-        setRelationshipType,
-        relationship
-    });
-  };
-
-  if (!relationship) {
-    return null;
-  }
-
-  if (relationship.users.length < 2) {
-    console.warn('Relationship does not contain enough users');
-    return null;
-  }
-
-  const user2 = relationship.users[1];
-
   return (
-    <View style={styles.contactCon}>
-      <View style={styles.imgCon}>
-        <View style={styles.placeholder}>
-          <Text style={styles.txt}>{relationshipType}</Text>
-        </View>
-      </View>
-      <View style={styles.contactDat}>
-        <Text style={styles.name}>
-          {user2.first_name} {user2.last_name}
-        </Text>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RelationshipsPicker', { relationship })}>
-            <Text style={styles.buttonText}>Update Relationship</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+    <View style={styles.pickerContainer}>
+      <Picker
+        selectedValue={relationshipType}
+        onValueChange={itemValue => setRelationshipType(itemValue)}>
+        <Picker.Item label="Family" value="Family" />
+        <Picker.Item label = "Close Friends" value = "Close Friends" />
+        <Picker.Item label="Friend" value="Friend" />
+        <Picker.Item label="Acquaintance" value="Acquaintance" />
+      </Picker>
+      <TouchableOpacity style={styles.button} title="Update Relationship Type" onPress={updateRelationshipType}>
+        <Text style={styles.buttonText}>Update</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  pickerContainer: {
+    padding: 20,
+    backgroundColor: '#fff',
+    marginTop: 50,
+  },
   contactCon: {
     flex: 1,
     flexDirection: 'row',
@@ -103,27 +80,26 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
   },
-  phoneNumber: {
-    color: '#888',
-  },
   buttonContainer: {
-    flexDirection: 'row',
-    marginTop: 5,
+    flexDirection: 'column',
+    marginTop: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   button: {
     backgroundColor: '#4CAF50',
-    padding: 5,
+    padding: 20,
     borderRadius: 5,
-    marginRight: 5,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    width:140,
-    height:40
+    width: '100%',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
-export default Relationship;
+
+export default RelationshipsPicker;

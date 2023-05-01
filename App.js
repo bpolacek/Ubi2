@@ -12,6 +12,8 @@ import { AuthProvider } from './src/context/AuthContext'
 import AppNav from './src/navigation/AppNav';
 import * as Contacts from 'expo-contacts'
 import Contact from './src/screens/Contact';
+import RelationshipsPicker from './src/screens/RelationshipsPicker';
+import RelationshipsStack from './src/navigation/RelationshipStack';
 
 export default function App() {
 

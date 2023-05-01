@@ -58,20 +58,14 @@ class Login(Resource):
 
         user = User.query.filter_by(email=data['email']).first()
         password = data['password']
-        print(password)
-        print("User Object", user.email)
 
-        if user:
-            print("User found")
         if user.authenticate(password):  # use the check_password method
-            print("Password authenticated.")
             try:
                 auth_token = user.encode_auth_token(user.id)
                 print(auth_token)
                 user_data = {'id':user.id, 'email':user.email, 'password':password}
                 return {'auth_token': auth_token, 'user_data':user_data}, 200  # Decode the byte string to normal string
             except Exception as e:
-                print(e)
                 return {"message": str(e)}, 500
         else:
             print("User not found")
@@ -98,15 +92,16 @@ class Users(Resource):
 api.add_resource(Users, '/users')
 
 class FriendRequestResource(Resource):
-    @token_required
-    def get(self, current_user):
+
+    def get(self):
         requests=FriendRequest.query.all()
         requests_dict=[request.to_dict() for request in requests]
         return make_response(
             requests_dict,
             200
         )
-    def post(self):
+    @token_required
+    def post(self, current_user):
         parser = reqparse.RequestParser()
         parser.add_argument('requester_id', type=int, required=True, help="Requester ID is required.")
         parser.add_argument('requested_id', type=int, required=True, help="Requested ID is required.")
@@ -119,31 +114,6 @@ class FriendRequestResource(Resource):
 
 api.add_resource(FriendRequestResource, '/friend_requests')
 
-# class FriendRequestResponseResource(Resource):
-#     def put(self, request_id):
-#         parser = reqparse.RequestParser()
-#         parser.add_argument('action', type=str, required=True, help="Action (accept/reject) is required.")
-#         args = parser.parse_args()
-
-#         friend_request = FriendRequest.query.get(request_id)
-#         if not friend_request:
-#             return {"message": "Friend request not found."}, 404
-
-#         if args['action'].lower() == 'accept':
-#             friend_request.status = 'accepted'
-#             db.session.commit()
-#             relationship = Relationship(user_1=friend_request.requester_id, user_2=friend_request.requested_id, relationship_type=3)
-#             db.session.add(relationship)
-#             db.session.commit()
-#             return {"message": "Friend request accepted."}, 200
-#         elif args['action'].lower() == 'reject':
-#             db.session.delete(friend_request)
-#             db.session.commit()
-#             return {"message": "Friend request rejected."}, 200
-#         else:
-#             return {"message": "Invalid action. Allowed actions are 'accept' and 'reject'."}, 400
-
-# api.add_resource(FriendRequestResponseResource, '/friend_requests/<int:request_id>/response')
 class FriendRequestResponseResource(Resource):
     def put(self, request_id):
         parser = reqparse.RequestParser()
@@ -201,22 +171,6 @@ class Relationships(Resource):
             200
         )
 
-    # def post(self):
-    #     parser = reqparse.RequestParser()
-    #     parser.add_argument('user_1', type=int, required=True, help="User 1 ID is required.")
-    #     parser.add_argument('user_2', type=int, required=True, help="User 2 ID is required.")
-    #     parser.add_argument('relationship_type', type=int, required=True, help="Relationship type is required.")
-    #     args = parser.parse_args()
-
-    #     relationship = Relationship(
-    #         user_1=args['user_1'],
-    #         user_2=args['user_2'],
-    #         relationship_type=args['relationship_type']
-    #     )
-    #     db.session.add(relationship)
-    #     db.session.commit()
-    #     return {"message": "Relationship created successfully."}, 201
-
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user_1', type=int, required=True, help="User 1 ID is required.")
@@ -241,6 +195,20 @@ api.add_resource(Relationships, '/relationships')
 @token_required
 def protected_route(current_user):
     return jsonify({'message': f'Hello, {current_user.first_name}!'})
+
+class RelationshipTypes(Resource):
+    def patch(self, id):
+        relationship = Relationship.query.filter_by(id = id).first()
+        data = request.get_json()
+        for attr in data:
+            setattr(relationship, attr, data[attr])
+            db.session.add(relationship) 
+            db.session.commit()
+            relationship_dict=relationship.to_dict()
+
+            return make_response(relationship_dict, 202)
+
+api.add_resource(RelationshipTypes, '/relationships/<int:id>')
 
 
 if __name__ == '__main__':

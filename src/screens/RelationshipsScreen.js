@@ -1,22 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as Contacts from 'expo-contacts'
 import Contact from './Contact';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Relationship from './Relationship';
+import Request from './Request';
+import { AuthContext } from '../context/AuthContext';
 
 const RelationshipsScreen = () => {
   const [contacts, setContacts] = useState([]);
   const [permission, setPermission] = useState(false);
   const [index, setIndex] = useState(0);
   const [sortedContacts, setSortedContacts] = useState([]);
-  const[authenticatedUsers, setIsAuthenticatedUsers] = useState([])
+  // const[authenticatedUsers, setIsAuthenticatedUsers] = useState([])
   const [filteredContacts, setFilteredContacts] = useState([]);
   const[relationships, setRelationships]=useState([]);
+  const[requests, setRequests]=useState([]);
+
+  const { userInfo } = useContext(AuthContext);
+  // console.log(userInfo.user_data.id);
 
   const url = 'http://10.129.3.45:5555/users'
-  const authToken = AsyncStorage.getItem('authToken');
+  // const authToken = AsyncStorage.getItem('authToken');
 useEffect(() =>{
   fetch(url)
   .then(response => response.json())
@@ -77,6 +83,21 @@ useEffect(() =>{
       .catch(error => console.log(error));
   }, []);
 
+  useEffect(() => {
+   
+    fetch('http://10.129.3.45:5555/friend_requests')
+      .then(response => response.json())
+      .then(data => {
+        // Filter the requests to only include those where the requested user id matches the userInfo id
+        console.log(data)
+        const requestedIds = data.map(request => request.requested_id);
+        console.log(requestedIds);
+        const filteredRequests = data.filter(request => request.requested_id === userInfo.user_data.id && request.status === "pending");
+        setRequests(filteredRequests);
+      })
+      .catch(error => console.log(error))
+  }, [userInfo.user_data.id]);
+
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (query) => {
@@ -91,12 +112,17 @@ useEffect(() =>{
     const recordId = item?.recordId;
     return recordId ? recordId.toString() : index.toString();
   };
-console.log(relationships[0])
+
   const RelationshipsScene = () => (
     
     <View style={styles.container}>
+      <Text>Requests</Text>
+      <FlatList 
+        data={requests}
+        renderItem={({ item }) => <Request request={item} />}
+        keyExtractor={item => item.id.toString()}      
+      />
       <Text>Your Relationships</Text>
-      <Text> Requests</Text>
       <FlatList
         data={relationships}
         renderItem={({ item }) => <Relationship relationship={item} />}
