@@ -5,7 +5,34 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from config import bcrypt, db, app
 import jwt as pyjwt
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import Table, Text
 
+association_table = Table('association', db.Model.metadata,
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('relationship_id', db.Integer, db.ForeignKey('relationships.id'))
+)
+
+class Relationship(db.Model, SerializerMixin):
+    __tablename__="relationships"
+
+    id=db.Column(db.Integer, primary_key=True)
+
+    # user_1=db.Column(db.Integer, default=None)
+    # user_2=db.Column(db.Integer, db.ForeignKey('users.id'))
+    relationship_type=db.Column(db.Integer, db.ForeignKey('relationshiptypes.id'))
+
+    users = db.relationship('User', secondary=association_table, back_populates='relationships')
+    relationship_types=db.relationship('RelationshipType', back_populates='relationships')
+
+    serialize_rules=('-relationship_types', 'users')
+
+    @property
+    def user_1_name(self):
+        return f"{self.users[0].first_name} {self.users[0].last_name}"
+
+    @property
+    def user_2_name(self):
+        return f"{self.users[1].first_name} {self.users[1].last_name}"
 
 class User(db.Model, SerializerMixin):
     __tablename__="users"
@@ -18,8 +45,11 @@ class User(db.Model, SerializerMixin):
     phone_number=db.Column(db.String, nullable=False)
     _password_hash=db.Column(db.String, nullable=False)
 
-    relationships = db.relationship('Relationship', back_populates= 'users')
+    relationships = db.relationship('Relationship', secondary=association_table, back_populates='users')
     messages = db.relationship('Message', back_populates='users')
+
+
+    serialize_rules=('-relationships', '-messages', )
 
     @hybrid_property
     def password_hash(self):
@@ -61,17 +91,21 @@ class User(db.Model, SerializerMixin):
             return 'Invalid token. Please log in again.'
         
 
-class Relationship(db.Model, SerializerMixin):
-    __tablename__="relationships"
+# class Relationship(db.Model, SerializerMixin):
+#     __tablename__="relationships"
 
-    id=db.Column(db.Integer, primary_key=True)
+#     id=db.Column(db.Integer, primary_key=True)
 
-    user_1=db.Column(db.Integer, default=None)
-    user_2=db.Column(db.Integer, db.ForeignKey('users.id'))
-    relationship_type=db.Column(db.Integer, db.ForeignKey('relationshiptypes.id'))
+#     user_1=db.Column(db.Integer, db.ForeignKey('users.id'))
+#     user_2=db.Column(db.Integer, db.ForeignKey('users.id'))
+#     relationship_type=db.Column(db.Integer, db.ForeignKey('relationshiptypes.id'))
 
-    users = db.relationship('User', back_populates='relationships')
-    relationship_types=db.relationship('RelationshipType', back_populates='relationships')
+#     users = db.relationship('User', back_populates='relationships')
+#     relationship_types=db.relationship('RelationshipType', back_populates='relationships')
+
+#     serialize_rules=('-relationship_types',)
+
+#     __table_args__ = (db.UniqueConstraint('user_1', 'user_2'),)
 
 class RelationshipType(db.Model, SerializerMixin):
     __tablename__="relationshiptypes"
@@ -80,6 +114,7 @@ class RelationshipType(db.Model, SerializerMixin):
     type=db.Column(db.String)
     
     relationships=db.relationship('Relationship', back_populates='relationship_types')
+
 
 class Message(db.Model, SerializerMixin):
     __tablename__="messages"

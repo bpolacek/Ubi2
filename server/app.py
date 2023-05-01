@@ -22,6 +22,7 @@ def token_required(f):
         try:
             user_id = User.decode_auth_token(token)
             current_user = User.query.filter_by(id=user_id).first()
+            print("this is the current user", {current_user})
         except Exception as e:
             return jsonify({'message': str(e)}), 401
 
@@ -105,7 +106,7 @@ class FriendRequestResource(Resource):
             requests_dict,
             200
         )
-    def post(self, current_user):
+    def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('requester_id', type=int, required=True, help="Requester ID is required.")
         parser.add_argument('requested_id', type=int, required=True, help="Requested ID is required.")
@@ -118,6 +119,31 @@ class FriendRequestResource(Resource):
 
 api.add_resource(FriendRequestResource, '/friend_requests')
 
+# class FriendRequestResponseResource(Resource):
+#     def put(self, request_id):
+#         parser = reqparse.RequestParser()
+#         parser.add_argument('action', type=str, required=True, help="Action (accept/reject) is required.")
+#         args = parser.parse_args()
+
+#         friend_request = FriendRequest.query.get(request_id)
+#         if not friend_request:
+#             return {"message": "Friend request not found."}, 404
+
+#         if args['action'].lower() == 'accept':
+#             friend_request.status = 'accepted'
+#             db.session.commit()
+#             relationship = Relationship(user_1=friend_request.requester_id, user_2=friend_request.requested_id, relationship_type=3)
+#             db.session.add(relationship)
+#             db.session.commit()
+#             return {"message": "Friend request accepted."}, 200
+#         elif args['action'].lower() == 'reject':
+#             db.session.delete(friend_request)
+#             db.session.commit()
+#             return {"message": "Friend request rejected."}, 200
+#         else:
+#             return {"message": "Invalid action. Allowed actions are 'accept' and 'reject'."}, 400
+
+# api.add_resource(FriendRequestResponseResource, '/friend_requests/<int:request_id>/response')
 class FriendRequestResponseResource(Resource):
     def put(self, request_id):
         parser = reqparse.RequestParser()
@@ -131,16 +157,18 @@ class FriendRequestResponseResource(Resource):
         if args['action'].lower() == 'accept':
             friend_request.status = 'accepted'
             db.session.commit()
-            return {"message": "Friend request accepted."}, 200
-        elif args['action'].lower() == 'reject':
-            db.session.delete(friend_request)
+            # Fetch the User objects from the database
+            user_1 = User.query.get(friend_request.requester_id)
+            user_2 = User.query.get(friend_request.requested_id)
+            # Create a new Relationship and add the users to it
+            relationship = Relationship(relationship_type=3)
+            relationship.users.append(user_1)
+            relationship.users.append(user_2)
+            db.session.add(relationship)
             db.session.commit()
-            return {"message": "Friend request rejected."}, 200
-        else:
-            return {"message": "Invalid action. Allowed actions are 'accept' and 'reject'."}, 400
-
+            return {"message": "Friend request accepted."}, 200
+        # ...
 api.add_resource(FriendRequestResponseResource, '/friend_requests/<int:request_id>/response')
-
 
 class DeleteFriendResource(Resource):
     # @token_required
@@ -165,6 +193,30 @@ class DeleteFriendResource(Resource):
 api.add_resource(DeleteFriendResource, '/friends/<int:friendship_id>')
 
 class Relationships(Resource):
+    def get(self):
+        relationships=Relationship.query.all()
+        relationship_dict=[r.to_dict() for r in relationships]
+        return make_response(
+            relationship_dict,
+            200
+        )
+
+    # def post(self):
+    #     parser = reqparse.RequestParser()
+    #     parser.add_argument('user_1', type=int, required=True, help="User 1 ID is required.")
+    #     parser.add_argument('user_2', type=int, required=True, help="User 2 ID is required.")
+    #     parser.add_argument('relationship_type', type=int, required=True, help="Relationship type is required.")
+    #     args = parser.parse_args()
+
+    #     relationship = Relationship(
+    #         user_1=args['user_1'],
+    #         user_2=args['user_2'],
+    #         relationship_type=args['relationship_type']
+    #     )
+    #     db.session.add(relationship)
+    #     db.session.commit()
+    #     return {"message": "Relationship created successfully."}, 201
+
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('user_1', type=int, required=True, help="User 1 ID is required.")
@@ -172,11 +224,13 @@ class Relationships(Resource):
         parser.add_argument('relationship_type', type=int, required=True, help="Relationship type is required.")
         args = parser.parse_args()
 
-        relationship = Relationship(
-            user_1=args['user_1'],
-            user_2=args['user_2'],
-            relationship_type=args['relationship_type']
-        )
+        # Fetch the User objects from the database
+        user_1 = User.query.get(args['user_1'])
+        user_2 = User.query.get(args['user_2'])
+        # Create a new Relationship and add the users to it
+        relationship = Relationship(relationship_type=args['relationship_type'])
+        relationship.users.append(user_1)
+        relationship.users.append(user_2)
         db.session.add(relationship)
         db.session.commit()
         return {"message": "Relationship created successfully."}, 201
@@ -191,3 +245,6 @@ def protected_route(current_user):
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True, host="10.129.3.45")   
+
+    # Home IP: http://192.168.86.120
+# Flatiron IP: http://10.129.3.45:5555

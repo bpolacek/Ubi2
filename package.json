@@ -1,5 +1,5 @@
 {
-  "proxy": "http://10.129.3.45:5555",
+  "proxy": "http://10.129.3.45",
   "name": "ubi2",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
@@ -32,3 +32,5 @@
   },
   "private": true
 }
+
+

@@ -24,3 +24,6 @@ app.json.compact = False
 
 migrate = Migrate(app, db)
 db.init_app(app)
+
+# Home IP: http://192.168.86.120
+# Flatiron IP: http://10.129.3.45:5555

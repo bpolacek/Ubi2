@@ -4,6 +4,7 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as Contacts from 'expo-contacts'
 import Contact from './Contact';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Relationship from './Relationship';
 
 const RelationshipsScreen = () => {
   const [contacts, setContacts] = useState([]);
@@ -12,10 +13,11 @@ const RelationshipsScreen = () => {
   const [sortedContacts, setSortedContacts] = useState([]);
   const[authenticatedUsers, setIsAuthenticatedUsers] = useState([])
   const [filteredContacts, setFilteredContacts] = useState([]);
+  const[relationships, setRelationships]=useState([]);
 
   const url = 'http://10.129.3.45:5555/users'
   const authToken = AsyncStorage.getItem('authToken');
-
+useEffect(() =>{
   fetch(url)
   .then(response => response.json())
   .then(data => {
@@ -42,7 +44,7 @@ const RelationshipsScreen = () => {
     setFilteredContacts(filtered);
   })
   .catch(error => console.log(error));
-  // }, [sortedContacts]);
+  }, [sortedContacts]);
 
   useEffect(() => {
     (async () => {
@@ -68,6 +70,13 @@ const RelationshipsScreen = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    fetch('http://10.129.3.45:5555/relationships')
+      .then(response => response.json())
+      .then(data => setRelationships(data))
+      .catch(error => console.log(error));
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = (query) => {
@@ -82,10 +91,17 @@ const RelationshipsScreen = () => {
     const recordId = item?.recordId;
     return recordId ? recordId.toString() : index.toString();
   };
-
+console.log(relationships[0])
   const RelationshipsScene = () => (
+    
     <View style={styles.container}>
       <Text>Your Relationships</Text>
+      <Text> Requests</Text>
+      <FlatList
+        data={relationships}
+        renderItem={({ item }) => <Relationship relationship={item} />}
+        keyExtractor={item => item.id.toString()}
+    />
     </View>
   );
 
