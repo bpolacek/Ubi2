@@ -63,7 +63,7 @@ class Login(Resource):
             try:
                 auth_token = user.encode_auth_token(user.id)
                 print(auth_token)
-                user_data = {'id':user.id, 'email':user.email, 'password':password}
+                user_data = {'id':user.id, 'first_name':user.first_name, 'email':user.email, 'password':password}
                 return {'auth_token': auth_token, 'user_data':user_data}, 200  # Decode the byte string to normal string
             except Exception as e:
                 return {"message": str(e)}, 500
@@ -196,7 +196,7 @@ api.add_resource(Relationships, '/relationships')
 def protected_route(current_user):
     return jsonify({'message': f'Hello, {current_user.first_name}!'})
 
-class RelationshipTypes(Resource):
+class RelationshipbyId(Resource):
     def patch(self, id):
         relationship = Relationship.query.filter_by(id = id).first()
         data = request.get_json()
@@ -207,8 +207,17 @@ class RelationshipTypes(Resource):
             relationship_dict=relationship.to_dict()
 
             return make_response(relationship_dict, 202)
+        
+    def delete(self, id):
+        relationship = Relationship.query.get(id)
+        if relationship:
+            db.session.delete(relationship)
+            db.session.commit()
+            return {"message": "Relationship deleted successfully."}, 200
+        else:
+            return {"error": "Relationship not found."}, 404
 
-api.add_resource(RelationshipTypes, '/relationships/<int:id>')
+api.add_resource(RelationshipbyId, '/relationships/<int:id>')
 
 
 if __name__ == '__main__':

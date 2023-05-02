@@ -3,35 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import RelationshipsPicker from './RelationshipsPicker';
 
-const Relationship = ({ relationship = null }) => {
+const Relationship = ({ relationship = null, userInfo }) => {
   const navigation = useNavigation();
   const [relationshipType, setRelationshipType] = useState(
     relationship?.relationship_type || ''
   );
-
-  const updateRelationshipType = async () => {
-    const response = await fetch(
-      `http://10.129.3.45:5555/relationships/${relationship.id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          relationship_type: relationshipType,
-        }),
-      }
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      // Update the state with the new relationship type
-      setRelationshipType(data.relationship_type);
-    } else {
-      console.log('Error updating relationship type');
-    }
-  };
 
   const handlePress = () => {
     navigation.navigate('RelationshipsPicker', {
@@ -49,8 +25,28 @@ const Relationship = ({ relationship = null }) => {
     console.warn('Relationship does not contain enough users');
     return null;
   }
+console.log(userInfo)
+  const friend = relationship.users.find(user => user.first_name !== userInfo.user_data.first_name);
+  console.log(friend[0]);
 
-  const user2 = relationship.users[1];
+  const deleteRelationship = async () => {
+    const response = await fetch(
+      `http://10.129.3.45:5555/relationships/${relationship.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (response.ok) {
+      console.log('Relationship deleted successfully');
+      Alert.alert('Relationship deleted successfully');
+    } else {
+      console.log('Error deleting relationship');
+    }
+  };
 
   return (
     <View style={styles.contactCon}>
@@ -61,11 +57,14 @@ const Relationship = ({ relationship = null }) => {
       </View>
       <View style={styles.contactDat}>
         <Text style={styles.name}>
-          {user2.first_name} {user2.last_name}
+          {friend.first_name} {friend.last_name}
         </Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RelationshipsPicker', { relationship })}>
             <Text style={styles.buttonText}>Update Relationship</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={deleteRelationship}>
+            <Text style={styles.secondaryButton}>Delete Relationship</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -98,10 +97,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff'
   },
   txt: {
-    fontSize: 18,
+    fontSize: 14,
   },
   name: {
-    fontSize: 16,
+    fontSize: 20,
+    fontWeight: 'bold'
   },
   phoneNumber: {
     color: '#888',
@@ -111,19 +111,26 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#f5793b',
     padding: 5,
     borderRadius: 5,
     marginRight: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    width:140,
+    width:150,
     height:40
   },
   buttonText: {
-    color: '#fff',
+    color: '#222831',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: 'semi-bold',
+  },
+  secondaryButton:{
+    color: '#f5793b', // This will be the color of the text
+    fontSize: 12,
+    fontWeight: 'semi-bold',
+    textDecorationLine: 'underline', // This will make the text underlined
+    paddingVertical: 5, // You might want to add some padding to separate the buttons
   },
 });
 export default Relationship;

@@ -60,8 +60,8 @@ const Request = ({request = null}) => {
               <TouchableOpacity style={styles.button} onPress={handleAccept}>
                 <Text style={styles.buttonText}>Accept</Text>
               </TouchableOpacity>
-              <TouchableOpacity tyles={styles.button} onPress={handleReject}>
-                <Text style={styles.buttoneText}>Reject</Text>
+              <TouchableOpacity  onPress={handleReject}>
+                <Text style={styles.secondaryButton}>Reject</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -104,14 +104,22 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#f5793b',
     padding: 5,
     borderRadius: 5,
     marginRight: 5,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#222831',
+    fontSize: 14,
+    fontWeight: 'semi-bold'
+  },
+  secondaryButton:{
+    color: '#f5793b', // This will be the color of the text
+    fontSize: 12,
+    fontWeight: 'semi-bold',
+    textDecorationLine: 'underline', // This will make the text underlined
+    paddingVertical: 5, // You might want to add some padding to separate the buttons
   },
 });
 export default Request;

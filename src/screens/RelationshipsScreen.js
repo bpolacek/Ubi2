@@ -132,7 +132,7 @@ useEffect(() =>{
       <Text>Your Relationships</Text>
       <FlatList
         data={relationships}
-        renderItem={({ item }) => <Relationship relationship={item} />}
+        renderItem={({ item }) => <Relationship relationship={item} userInfo={userInfo} />}
         keyExtractor={item => item.id.toString()}
     />
     </View>
