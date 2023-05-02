@@ -19,7 +19,7 @@ const Request = ({request = null}) => {
           body: JSON.stringify({action: 'accept'}),
         });
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.log(error);
       }
@@ -36,7 +36,7 @@ const Request = ({request = null}) => {
           body: JSON.stringify({action: 'reject'}),
         });
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         console.log(error);
       }

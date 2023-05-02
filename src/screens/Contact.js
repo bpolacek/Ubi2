@@ -2,14 +2,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
-const Contact = ({contact}) => {
+const Contact = ({contact, userId, user}) => {
     if(!contact) {
         return null;
     }
+console.log(userId)
 
     const handleFriendRequest = async () =>{
         const token = await AsyncStorage.getItem('authToken');
-        const data = { requester_id: 123, requested_id: 456 }; // replace with actual requester_id and requested_id
+
+        let contactPhoneNumber;
+    for (let i = 0; i < contact.phoneNumbers.length; i++) {
+      if (contact.phoneNumbers[i].digits) {
+        contactPhoneNumber = contact.phoneNumbers[i].digits;
+        break;
+      }
+    }
+   
+    if (!contactPhoneNumber) {
+      console.error('No valid phone number found for this contact');
+      return;
+    }
+        const data = { requester_id: userId, requested_id: user.id }; // replace with actual requester_id and requested_id
         const response = await fetch('http://10.129.3.45:5555/friend_requests', {
           method: 'POST',
           headers: {

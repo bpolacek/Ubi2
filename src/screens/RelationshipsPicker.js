@@ -21,7 +21,7 @@ const [relationshipType, setRelationshipType] = useState(relationship.relationsh
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       // Update the state with the new relationship type
       setRelationshipType(data.relationship_type);
     } else {

@@ -17,6 +17,7 @@ const RelationshipsScreen = () => {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const[relationships, setRelationships]=useState([]);
   const[requests, setRequests]=useState([]);
+  const[users,setUsers]=useState([]);
 
   const { userInfo } = useContext(AuthContext);
   // console.log(userInfo.user_data.id);
@@ -27,6 +28,7 @@ useEffect(() =>{
   fetch(url)
   .then(response => response.json())
   .then(data => {
+    setUsers(data);
     const phoneNumbers = [...new Set(data.map(user => {
       // Ensure user.phone_number is not null or undefined before trying to replace
       return user.phone_number ? user.phone_number.replace(/\D/g, '') : null;
@@ -47,7 +49,12 @@ useEffect(() =>{
       }
       return found;
     });
-    setFilteredContacts(filtered);
+    const contactsWithUsers = filtered.map(contact => {
+      const user = data.find(user=>user.phone_number === contact.phoneNumbers[0].number.replace(/\D/g, ''));
+      return {...contact, user: user || {} };
+    });
+    
+    setFilteredContacts(contactsWithUsers);
   })
   .catch(error => console.log(error));
   }, [sortedContacts]);
@@ -144,7 +151,7 @@ useEffect(() =>{
         </View>
         <FlatList
           data={searchedContacts}
-          renderItem={({ item }) => <Contact contact={item} />}
+          renderItem={({ item }) => <Contact contact={item} user = {item.user} userId={userInfo.user_data.id} />}
           keyExtractor={keyExtractor}
           style={styles.list}
           keyboardDismissMode='none'
