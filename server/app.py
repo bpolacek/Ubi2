@@ -91,6 +91,24 @@ class Users(Resource):
     
 api.add_resource(Users, '/users')
 
+class UserById(Resource):
+     def patch(self, id):
+        user = User.query.filter_by(id=id).first()
+        data = request.get_json()
+        
+        if 'latitude' in data:
+            user.latitude = data['latitude']
+        if 'longitude' in data:
+            user.longitude = data['longitude']
+
+        db.session.add(user)
+        db.session.commit()
+
+        user_dict = user.to_dict()
+        return make_response(user_dict, 200)
+
+api.add_resource(UserById, '/users/<int:id>')
+
 class FriendRequestResource(Resource):
 
     def get(self):

@@ -44,6 +44,8 @@ class User(db.Model, SerializerMixin):
     email=db.Column(db.String, unique=True, nullable=False)
     phone_number=db.Column(db.String, nullable=False)
     _password_hash=db.Column(db.String, nullable=False)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
 
     relationships = db.relationship('Relationship', secondary=association_table, back_populates='users')
     messages = db.relationship('Message', back_populates='users')

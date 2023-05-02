@@ -25,9 +25,9 @@ const Relationship = ({ relationship = null, userInfo }) => {
     console.warn('Relationship does not contain enough users');
     return null;
   }
-console.log(userInfo)
+
   const friend = relationship.users.find(user => user.first_name !== userInfo.user_data.first_name);
-  console.log(friend[0]);
+
 
   const deleteRelationship = async () => {
     const response = await fetch(
