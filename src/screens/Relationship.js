@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#222831',
     fontSize: 12,
-    fontWeight: 'semi-bold',
+    fontWeight: 'semibold',
   },
   secondaryButton:{
     color: '#f5793b', // This will be the color of the text

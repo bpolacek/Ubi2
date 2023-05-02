@@ -86,9 +86,15 @@ useEffect(() =>{
   useEffect(() => {
     fetch('http://10.129.3.45:5555/relationships')
       .then(response => response.json())
-      .then(data => setRelationships(data))
+      .then(data => {
+        // Filter the relationships to only include those where the current user id is found in the users attribute
+        const filteredRelationships = data.filter(relationship =>
+          relationship.users.some(user => user.id === userInfo.user_data.id)
+        );
+        setRelationships(filteredRelationships);
+      })
       .catch(error => console.log(error));
-  }, []);
+  }, [userInfo.user_data.id]);
 
   useEffect(() => {
    
@@ -96,9 +102,9 @@ useEffect(() =>{
       .then(response => response.json())
       .then(data => {
         // Filter the requests to only include those where the requested user id matches the userInfo id
-        console.log(data)
+        // console.log(data)
         const requestedIds = data.map(request => request.requested_id);
-        console.log(requestedIds);
+        // console.log(requestedIds);
         const filteredRequests = data.filter(request => request.requested_id === userInfo.user_data.id && request.status === "pending");
         setRequests(filteredRequests);
       })

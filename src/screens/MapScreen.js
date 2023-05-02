@@ -7,6 +7,7 @@ import { AuthContext } from '../context/AuthContext';
 const MapScreen = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [filteredRelationships, setFilteredRelationships]=useState([]);
   const [region, setRegion] = useState({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -15,6 +16,23 @@ const MapScreen = () => {
   });
   const [relationships, setRelationships]=useState([]);
   const { userInfo } = useContext(AuthContext);
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return d;
+  };
+
+  const deg2rad = (deg) => {
+    return deg * (Math.PI/180);
+  };
 
   useEffect(() => {
     const updateUserLocation = async (latitude, longitude) => {
@@ -50,11 +68,30 @@ const MapScreen = () => {
       try {
         const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
         const data = await response.json();
-        setRelationships(data);
+        const filteredRelationships = data.filter(relationship =>
+          relationship.users.some(user => user.id === userInfo.user_data.id) &&
+          location && // Add a check for location to ensure it is not null
+          calculateDistance(
+            location.coords.latitude,
+            location.coords.longitude,
+            relationship.users.find(user => user.id !== userInfo.user_data.id).latitude,
+            relationship.users.find(user => user.id !== userInfo.user_data.id).longitude
+          ) <=
+          ((relationship.relationship_type === "Family" && 50) ||
+          (relationship.relationship_type === "Close friend" && 30) ||
+          (relationship.relationship_type === "Friend" && 15) ||
+          (relationship.relationship_type === "Acquaintance" && 2) ||
+          (relationship.relationship_type === "Work friend" && 0.1) ||
+          (relationship.relationship_type === "Former colleague" && 0.5))
+        );
+        setRelationships(filteredRelationships);
+        console.log(filteredRelationships.map(relationship => relationship.relationship_type));
+        setFilteredRelationships(filteredRelationships);
       } catch (error) {
         console.error('Error fetching relationships:', error);
       }
     };
+
 
     (async () => {
       try {
@@ -76,6 +113,7 @@ const MapScreen = () => {
 
         updateUserLocation(location.coords.latitude, location.coords.longitude);
         fetchRelationships();
+        console.log(relationships)
       } catch (error) {
         setErrorMsg('Error while retrieving location');
       }
@@ -89,31 +127,38 @@ const MapScreen = () => {
   if (!location) {
     return <Text>Fetching location...</Text>;
   }
+  
   return (
-    <MapView
+  <MapView
     style={styles.map}
     provider={PROVIDER_GOOGLE}
     region={region}
     showsUserLocation={true}
   >
-    {relationships.map((relationship, index) => {
-      const user = relationship.users.find(user => user.first_name !== userInfo.user_data.first_name);
-
-      // Replace user.latitude and user.longitude with the actual paths to the latitude and longitude in your data
-      // Assuming each user in the relationship has a 'location' property that has 'latitude' and 'longitude'
-      if (user?.latitude && user?.longitude) {
+    {filteredRelationships.map((relationship, index) => {
+      const otherUser = relationship.users.find((user) => user.id !== userInfo.user_data.id);
+      if (otherUser) {
         return (
           <Marker
             key={index}
-            coordinate={{ latitude: user.latitude, longitude: user.longitude }}
-            title={`${user.first_name} ${user.last_name}`}
+            coordinate={{ latitude: otherUser.latitude, longitude: otherUser.longitude }}
+            title={`${otherUser.first_name} ${otherUser.last_name}`}
+            pinColor="#FF5733"
           />
         );
       }
       return null;
     })}
+    {filteredRelationships.length === 0 && (
+      <Marker
+        key="defaultMarker"
+        coordinate={{ latitude: region.latitude, longitude: region.longitude }}
+        title="My Location"
+      />
+    )}
   </MapView>
 );
+
 };
 
 const styles = StyleSheet.create({

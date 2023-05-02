@@ -35,8 +35,10 @@ const [relationshipType, setRelationshipType] = useState(relationship.relationsh
         onValueChange={itemValue => setRelationshipType(itemValue)}>
         <Picker.Item label="Family" value="Family" />
         <Picker.Item label = "Close Friends" value = "Close Friends" />
-        <Picker.Item label="Friend" value="Friend" />
-        <Picker.Item label="Acquaintance" value="Acquaintance" />
+        <Picker.Item label="Friends" value="Friends" />
+        <Picker.Item label="Acquaintances" value="Acquaintances" />
+        <Picker.Item label="Work Friends" value="Work Friends" />
+        <Picker.Item label="Former Colleagues" value="Former Colleagues" />
       </Picker>
       <TouchableOpacity style={styles.button} title="Update Relationship Type" onPress={updateRelationshipType}>
         <Text style={styles.buttonText}>Update</Text>
