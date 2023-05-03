@@ -1,12 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React from 'react';
+import React, { useState } from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
-const Contact = ({contact, userId, user}) => {
+
+const Contact = ({contact, userId, user, friendRequestStatus}) => {
     if(!contact) {
         return null;
     }
 console.log(userId)
+console.log(friendRequestStatus)
+
+const [isRequestSent, setIsRequestSent] = useState(false);
+const [pending, setPending]= useState(false)
 
     const handleFriendRequest = async () =>{
         const token = await AsyncStorage.getItem('authToken');
@@ -38,6 +43,8 @@ console.log(userId)
           console.error(errorData);
         } else {
           console.log('Friend request sent successfully');
+          setIsRequestSent(true);
+          setPending(true);
         }
       };
   return (
@@ -57,8 +64,8 @@ console.log(userId)
           </Text>
   ))}
 </View>
-<TouchableOpacity style={styles.addButton} onPress={handleFriendRequest}>
-    <Text>Add</Text>
+<TouchableOpacity style={pending ? styles.pendingButton: styles.addButton} onPress={handleFriendRequest} disabled={isRequestSent}>
+    <Text style={styles.buttonText}>{isRequestSent ? 'Pending' : 'Add'}</Text>
 </TouchableOpacity>
 </View>
 );
@@ -106,9 +113,22 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   buttonText: {
-   color: '#0d0f13',
-   fontSize: 16,
+   color: '#f1f1f1',
+   fontSize: 12,
    fontWeight: "bold"
   },
+pendingButton: {
+  backgroundColor: '#37414f',
+  width: 50,
+  height: '100%',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderTopRightRadius: 5,
+  borderBottomRightRadius: 5,
+},
+pendingButtonText: {
+  color: '#fff',
+  fontSize: 12,
+},
 });
 export default Contact;

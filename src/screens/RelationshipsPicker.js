@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useDebugValue, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
 const RelationshipsPicker = ({ route }) => {
+  const navigation = useNavigation();
   const { relationship }=route.params;
 const [relationshipType, setRelationshipType] = useState(relationship.relationship_type || " ");
   const updateRelationshipType = async () => {
@@ -27,6 +29,7 @@ const [relationshipType, setRelationshipType] = useState(relationship.relationsh
     } else {
       console.log('Error updating relationship type');
     }
+    navigation.navigate('RelationshipsScreen');
   };
   return (
     <View style={styles.pickerContainer}>

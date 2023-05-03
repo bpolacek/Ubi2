@@ -34,6 +34,33 @@ const MapScreen = () => {
     return deg * (Math.PI/180);
   };
 
+  const fetchRelationships = async () => {
+    try {
+      const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
+      const data = await response.json();
+      const filteredRelationships = data.filter(relationship =>
+        relationship.users.some(user => user && user.id === userInfo.user_data.id) &&
+        location && // Add a check for location to ensure it is not null
+        calculateDistance(
+          location.coords.latitude,
+          location.coords.longitude,
+          relationship.users.find(user => user && user.id !== userInfo.user_data.id).latitude,
+          relationship.users.find(user => user && user.id !== userInfo.user_data.id).longitude
+        ) <=
+        ((relationship.relationship_type === "Family" && 50) ||
+        (relationship.relationship_type === "Close Friends" && 30) ||
+        (relationship.relationship_type === "Friends" && 15) ||
+        (relationship.relationship_type === "Acquaintances" && 2) ||
+        (relationship.relationship_type === "Work Friends" && 0.1) ||
+        (relationship.relationship_type === "Former Colleagues" && 0.5))
+      );
+      setFilteredRelationships(filteredRelationships);
+      console.log(filteredRelationships.map(relationship => relationship.relationship_type));
+    } catch (error) {
+      console.error('Error fetching relationships:', error);
+    }
+  };
+
   useEffect(() => {
     const updateUserLocation = async (latitude, longitude) => {
       const userId = userInfo?.user_data?.id;
@@ -64,33 +91,33 @@ const MapScreen = () => {
       }
     };
 
-    const fetchRelationships = async () => {
-      try {
-        const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
-        const data = await response.json();
-        const filteredRelationships = data.filter(relationship =>
-          relationship.users.some(user => user.id === userInfo.user_data.id) &&
-          location && // Add a check for location to ensure it is not null
-          calculateDistance(
-            location.coords.latitude,
-            location.coords.longitude,
-            relationship.users.find(user => user.id !== userInfo.user_data.id).latitude,
-            relationship.users.find(user => user.id !== userInfo.user_data.id).longitude
-          ) <=
-          ((relationship.relationship_type === "Family" && 50) ||
-          (relationship.relationship_type === "Close friend" && 30) ||
-          (relationship.relationship_type === "Friend" && 15) ||
-          (relationship.relationship_type === "Acquaintance" && 2) ||
-          (relationship.relationship_type === "Work friend" && 0.1) ||
-          (relationship.relationship_type === "Former colleague" && 0.5))
-        );
-        setRelationships(filteredRelationships);
-        console.log(filteredRelationships.map(relationship => relationship.relationship_type));
-        setFilteredRelationships(filteredRelationships);
-      } catch (error) {
-        console.error('Error fetching relationships:', error);
-      }
-    };
+    // const fetchRelationships = async () => {
+    //   try {
+    //     const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
+    //     const data = await response.json();
+    //     const filteredRelationships = data.filter(relationship =>
+    //       relationship.users.some(user => user && user.id === userInfo.user_data.id) &&
+    //       location && // Add a check for location to ensure it is not null
+    //       calculateDistance(
+    //         location.coords.latitude,
+    //         location.coords.longitude,
+    //         relationship.users.find(user => user && user.id !== userInfo.user_data.id).latitude,
+    //         relationship.users.find(user => user && user.id !== userInfo.user_data.id).longitude
+    //       ) <=
+    //       ((relationship.relationship_type === "Family" && 50) ||
+    //       (relationship.relationship_type === "Close friend" && 30) ||
+    //       (relationship.relationship_type === "Friend" && 15) ||
+    //       (relationship.relationship_type === "Acquaintance" && 2) ||
+    //       (relationship.relationship_type === "Work friend" && 1) ||
+    //       (relationship.relationship_type === "Former colleague" && 0.5))
+    //     );
+    //     // setRelationships(filteredRelationships);
+    //     setFilteredRelationships(filteredRelationships);
+    //     console.log(filteredRelationships.map(relationship => relationship.relationship_type));
+    //   } catch (error) {
+    //     console.error('Error fetching relationships:', error);
+    //   }
+    // };
 
 
     (async () => {

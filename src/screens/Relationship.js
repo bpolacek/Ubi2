@@ -47,6 +47,7 @@ const Relationship = ({ relationship = null, userInfo }) => {
       console.log('Error deleting relationship');
     }
   };
+  
 
   return (
     <View style={styles.contactCon}>

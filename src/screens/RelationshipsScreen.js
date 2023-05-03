@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import * as Contacts from 'expo-contacts'
 import Contact from './Contact';
@@ -7,6 +7,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Relationship from './Relationship';
 import Request from './Request';
 import { AuthContext } from '../context/AuthContext';
+import { WebView } from 'react-native-webview';
+import { CommonActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const RelationshipsScreen = () => {
   const [contacts, setContacts] = useState([]);
@@ -18,6 +21,8 @@ const RelationshipsScreen = () => {
   const[relationships, setRelationships]=useState([]);
   const[requests, setRequests]=useState([]);
   const[users,setUsers]=useState([]);
+
+  const navigation = useNavigation();
 
   const { userInfo } = useContext(AuthContext);
   // console.log(userInfo.user_data.id);
@@ -107,6 +112,7 @@ useEffect(() =>{
         // console.log(requestedIds);
         const filteredRequests = data.filter(request => request.requested_id === userInfo.user_data.id && request.status === "pending");
         setRequests(filteredRequests);
+        console.log(filteredRequests)
       })
       .catch(error => console.log(error))
   }, [userInfo.user_data.id]);
@@ -145,6 +151,17 @@ useEffect(() =>{
   );
 
   const AddRelationshipScene = () => {
+    const friendRequestStatus = (user) => {
+      const relationship = relationships.find(relationship =>
+        relationship.users.some(u => u.id === user.id)
+      );
+      if (relationship) {
+        return 'already_connected';
+      } else {
+        const request = requests.find(request => request.requested_id === user.id);
+        return request ? request.status : 'not_requested';
+      }
+    };
     return (
       <View style={styles.container}>
         <View style={styles.searchBarContainer}>
@@ -157,7 +174,12 @@ useEffect(() =>{
         </View>
         <FlatList
           data={searchedContacts}
-          renderItem={({ item }) => <Contact contact={item} user = {item.user} userId={userInfo.user_data.id} />}
+          renderItem={({ item }) => <Contact 
+          contact={item} 
+          user = {item.user} 
+          userId={userInfo.user_data.id}
+          friendRequestStatus={friendRequestStatus(item.user)}
+           />}
           keyExtractor={keyExtractor}
           style={styles.list}
           keyboardDismissMode='none'
@@ -174,6 +196,16 @@ useEffect(() =>{
       labelStyle={styles.tabLabel}
     />
   );
+
+  function handleRefresh() {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'RelationshipsScreen' }], // Replace 'Home' with the name of your root screen
+      })
+    );
+  }
+  
 
   return (
     <View style={styles.container}>
@@ -193,6 +225,11 @@ useEffect(() =>{
         initialLayout={{ width: '100%' }}
         renderTabBar={renderTabBar}
       />
+      <View style={styles.refreshContainer}>
+      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+        <Text style={styles.refreshText}>Refresh</Text>
+      </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -217,6 +254,24 @@ const styles = StyleSheet.create({
   searchBarContainer:{
     padding: 5,
     height:30
+  },
+  refreshContainer:{
+    position: 'absolute',
+    bottom:0,
+    width:'100%',
+    alignItems: 'center'
+  },
+  refreshButton: {
+    backgroundColor: '#37414f',
+    padding: 10,
+    borderRadius: 20,
+    width: '50%',
+    alignItems: 'center',
+    
+  },
+  refreshText: {
+    color: "#fff",
+    fontSize: 18
   }
 });
 
