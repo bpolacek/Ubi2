@@ -68,7 +68,7 @@ const MapScreen = () => {
         console.log('User info not available');
         return;
       }
-
+  
       try {
         const response = await fetch(`http://10.129.3.45:5555/users/${userId}`, {
           method: 'PATCH',
@@ -80,9 +80,10 @@ const MapScreen = () => {
             longitude,
           }),
         });
-
+  
         if (response.ok) {
           console.log('User location updated successfully');
+          return true; // return true if the update is successful
         } else {
           console.log('Error updating user location');
         }
@@ -90,36 +91,7 @@ const MapScreen = () => {
         console.error('Error updating user location:', error);
       }
     };
-
-    // const fetchRelationships = async () => {
-    //   try {
-    //     const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
-    //     const data = await response.json();
-    //     const filteredRelationships = data.filter(relationship =>
-    //       relationship.users.some(user => user && user.id === userInfo.user_data.id) &&
-    //       location && // Add a check for location to ensure it is not null
-    //       calculateDistance(
-    //         location.coords.latitude,
-    //         location.coords.longitude,
-    //         relationship.users.find(user => user && user.id !== userInfo.user_data.id).latitude,
-    //         relationship.users.find(user => user && user.id !== userInfo.user_data.id).longitude
-    //       ) <=
-    //       ((relationship.relationship_type === "Family" && 50) ||
-    //       (relationship.relationship_type === "Close friend" && 30) ||
-    //       (relationship.relationship_type === "Friend" && 15) ||
-    //       (relationship.relationship_type === "Acquaintance" && 2) ||
-    //       (relationship.relationship_type === "Work friend" && 1) ||
-    //       (relationship.relationship_type === "Former colleague" && 0.5))
-    //     );
-    //     // setRelationships(filteredRelationships);
-    //     setFilteredRelationships(filteredRelationships);
-    //     console.log(filteredRelationships.map(relationship => relationship.relationship_type));
-    //   } catch (error) {
-    //     console.error('Error fetching relationships:', error);
-    //   }
-    // };
-
-
+  
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -127,25 +99,29 @@ const MapScreen = () => {
           setErrorMsg('Permission to access location was denied');
           return;
         }
-
+  
         const location = await Location.getCurrentPositionAsync({});
         setLocation(location);
-
+  
         setRegion({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         });
-
-        updateUserLocation(location.coords.latitude, location.coords.longitude);
-        fetchRelationships();
-        console.log(relationships)
+  
+        const updateSuccess = await updateUserLocation(location.coords.latitude, location.coords.longitude);
+        
+        // Call fetchRelationships only if updateUserLocation was successful
+        if (updateSuccess) {
+          await fetchRelationships();
+          console.log(`relationships ${relationships}`);
+        }
       } catch (error) {
         setErrorMsg('Error while retrieving location');
       }
     })();
-  }, [userInfo]);
+  }, [userInfo, location]);
 
   if (errorMsg) {
     return <Text>{errorMsg}</Text>;

@@ -6,6 +6,8 @@ from config import bcrypt, db, app
 import jwt as pyjwt
 from datetime import datetime, timedelta, timezone
 from sqlalchemy import Table, Text
+from flask import Flask, request, jsonify
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 association_table = Table('association', db.Model.metadata,
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
@@ -91,23 +93,6 @@ class User(db.Model, SerializerMixin):
             return 'Signature expired. Please log in again.'
         except pyjwt.InvalidTokenError:
             return 'Invalid token. Please log in again.'
-        
-
-# class Relationship(db.Model, SerializerMixin):
-#     __tablename__="relationships"
-
-#     id=db.Column(db.Integer, primary_key=True)
-
-#     user_1=db.Column(db.Integer, db.ForeignKey('users.id'))
-#     user_2=db.Column(db.Integer, db.ForeignKey('users.id'))
-#     relationship_type=db.Column(db.Integer, db.ForeignKey('relationshiptypes.id'))
-
-#     users = db.relationship('User', back_populates='relationships')
-#     relationship_types=db.relationship('RelationshipType', back_populates='relationships')
-
-#     serialize_rules=('-relationship_types',)
-
-#     __table_args__ = (db.UniqueConstraint('user_1', 'user_2'),)
 
 class RelationshipType(db.Model, SerializerMixin):
     __tablename__="relationshiptypes"

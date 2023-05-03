@@ -4,9 +4,11 @@ from models import db, User, Relationship, RelationshipType, Message, FriendRequ
 from config import app, bcrypt
 from sqlalchemy import or_
 from functools import wraps
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 
 api = Api(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 def token_required(f):
     @wraps(f)
@@ -237,9 +239,36 @@ class RelationshipbyId(Resource):
 
 api.add_resource(RelationshipbyId, '/relationships/<int:id>')
 
+@socketio.on('send_message')
+def handle_send_message(data):
+    new_message = Message(message=data['message'], user_1=data['user_1'], user_2=data['user_2'])
+    db.session.add(new_message)
+    db.session.commit()
+    emit('receive_message', new_message.serialize(), broadcast=True)
+
+@socketio.on('get_messages')
+def handle_get_messages():
+    messages = Message.query.all()
+    emit('load_messages', [message.serialize() for message in messages])
+
+@socketio.on('edit_message')
+def handle_edit_message(data):
+    message = Message.query.get(data['id'])
+    if message:
+        message.message = data['message']
+        db.session.commit()
+        emit('message_edited', message.serialize(), broadcast=True)
+
+@socketio.on('delete_message')
+def handle_delete_message(data):
+    message = Message.query.get(data['id'])
+    if message:
+        db.session.delete(message)
+        db.session.commit()
+        emit('message_deleted', {'id': data['id']}, broadcast=True)
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True, host="10.129.3.45")   
+    socketio.run(app, port=5555, debug=True, host="10.129.3.45")   
 
     # Home IP: http://192.168.86.120
 # Flatiron IP: http://10.129.3.45:5555

@@ -1,11 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import MessageStack from '../navigation/MessageStack';
 
 const MessagesScreen = () => {
   return (
-    <View style={styles.container}>
-      <Text>Messages Screen</Text>
-    </View>
+    <MessageStack />
   );
 };
 
