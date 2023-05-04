@@ -4,7 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import Relationship from './Relationship';
 import MessageContact from './MessageContact';
 
-const NewChat = ({navigation}) => {
+const NewChat = ({navigation, route}) => {
+    const { messages, setMessages, chats, setChats} = route.params;
 
     const[relationships, setRelationships]=useState([]);
 

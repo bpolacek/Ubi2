@@ -214,7 +214,7 @@ api.add_resource(Relationships, '/relationships')
 @app.route('/protected', methods=['GET'])
 @token_required
 def protected_route(current_user):
-    return jsonify({'message': f'Hello, {current_user.first_name}!'})
+    return jsonify({'message': f'Hello, {current_user}!'})
 
 class RelationshipbyId(Resource):
     def patch(self, id):
@@ -244,7 +244,8 @@ def handle_send_message(data):
     new_message = Message(message=data['message'], user_1=data['user_1'], user_2=data['user_2'])
     db.session.add(new_message)
     db.session.commit()
-    emit('receive_message', new_message.serialize(), broadcast=True)
+    print('Emitting new_message:', new_message.serialize())
+    emit('new_message', new_message.serialize(), broadcast=True)
 
 @socketio.on('get_messages')
 def handle_get_messages():

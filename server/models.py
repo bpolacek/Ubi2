@@ -115,6 +115,14 @@ class Message(db.Model, SerializerMixin):
 
     users=db.relationship('User', back_populates='messages')
 
+    def serialize(self):
+        return{
+            'id':self.id,
+            'message':self.message,
+            'user_1':self.user_1,
+            'user_2':self.user_2
+        }
+
 class FriendRequest(db.Model, SerializerMixin):
     __tablename__="friendrequests"
 
@@ -126,3 +134,5 @@ class FriendRequest(db.Model, SerializerMixin):
 
     requester = db.relationship('User', foreign_keys=[requester_id])
     requested = db.relationship('User', foreign_keys=[requested_id])
+
+

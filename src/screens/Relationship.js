@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   secondaryButton:{
     color: '#f5793b', // This will be the color of the text
     fontSize: 12,
-    fontWeight: 'semi-bold',
+    fontWeight: 'semibold',
     textDecorationLine: 'underline', // This will make the text underlined
     paddingVertical: 5, // You might want to add some padding to separate the buttons
   },

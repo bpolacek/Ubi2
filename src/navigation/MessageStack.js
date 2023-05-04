@@ -8,16 +8,14 @@ import ChatButton from '../screens/ChatButton';
 
 const Stack = createStackNavigator();
 
-const MessageStack = () => {
+const MessageStack = ({messages, setMessages}) => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Messages List" component={MessagesList} />
-      <Stack.Screen name="New Chat" component={NewChat} />
-      <Stack.Screen name="Chat" component={Chat} />
+      <Stack.Screen name="Messages List" component={MessagesList} initialParams={{messages:messages, setMessages: setMessages}}/>
+      <Stack.Screen name="New Chat" component={NewChat} initialParams={{messages:messages, setMessages: setMessages}} />
+      <Stack.Screen name="Chat" component={Chat} initialParams={{messages:messages, setMessages: setMessages}} />
       <Stack.Screen name="Chat Button" component={ChatButton} />
-      <Stack.Screen name="Message Contact" component={MessageContact} />
-
-
+      <Stack.Screen name="Message Contact" component={MessageContact} initialParams={{messages:messages, setMessages:setMessages}} />
     </Stack.Navigator>
   );
 };

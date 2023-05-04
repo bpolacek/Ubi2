@@ -35,7 +35,7 @@ export const AuthProvider = ({children}) =>{
             setUserToken(data.auth_token);
             // setUserInfo({email:email});
             setUserInfo(data)
-            console.log(`userINFO DATA ${data}`)
+            console.log(`userINFO Id ${data.user_data.id}`)
             AsyncStorage.setItem('userInfo', JSON.stringify({email:email}));
             AsyncStorage.setItem('userToken', data.auth_token);
         }else{console.log("unsuccessful login")}
