@@ -83,7 +83,7 @@ const MapScreen = () => {
   
         if (response.ok) {
           console.log('User location updated successfully');
-          return true; // return true if the update is successful
+          return true;
         } else {
           console.log('Error updating user location');
         }
@@ -112,7 +112,6 @@ const MapScreen = () => {
   
         const updateSuccess = await updateUserLocation(location.coords.latitude, location.coords.longitude);
         
-        // Call fetchRelationships only if updateUserLocation was successful
         if (updateSuccess) {
           await fetchRelationships();
           console.log(`relationships ${relationships}`);

@@ -39,7 +39,7 @@ const Chat = ({ route }) => {
       setMessages(storedMessages);
     })();
   
-    socketRef.current = io('http://10.129.3.45:5555'); // replace with your server's URL
+    socketRef.current = io('http://10.129.3.45:5555'); 
   
     // Join the chat room for this relationship
     socketRef.current.emit('join_chat', { relationshipId: relationship.id });
@@ -95,18 +95,6 @@ const Chat = ({ route }) => {
           </View>
         ))}
       </View>
-      {/* <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message here..."
-          value={inputText}
-          onChangeText={setInputText}
-          onSubmitEditing={handleSend}
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
-      </View> */}
     </ScrollView>
     <View style={styles.inputContainer}>
         <TextInput

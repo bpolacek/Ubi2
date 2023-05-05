@@ -9,11 +9,6 @@ export const AuthProvider = ({children}) =>{
     const[userInfo, setUserInfo]= useState(null);
     const[user,setUser]=useState(null)
 
-    // const getToken = async () => {
-    //     const token = await AsyncStorage.getItem('userToken');
-    //     setUserToken(token);
-    // };
-
     const login = async(email, password) =>{
         setIsLoading(true);
         try{

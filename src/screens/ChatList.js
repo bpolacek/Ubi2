@@ -33,7 +33,6 @@ const ChatList = ({navigation, route}) => {
         // Fetch messages
         socket.emit('get_messages');
     
-        // Update messages when 'load_messages' event is received
         socket.on('load_messages', (data) => {
           setMessages(data);
         });

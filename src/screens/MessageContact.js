@@ -17,11 +17,11 @@ const MessageContact = ({ relationship, userInfo, navigation }) => {
 };
 const styles = {
     name: {
-      fontSize: 20, // Adjust the size as needed
+      fontSize: 20, 
       fontWeight: 'bold',
     },
     relationshipType: {
-      fontSize: 16, // Adjust the size as needed
+      fontSize: 16, 
     },
   };
 export default MessageContact;

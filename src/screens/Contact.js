@@ -28,7 +28,7 @@ const [pending, setPending]= useState(false)
       console.error('No valid phone number found for this contact');
       return;
     }
-        const data = { requester_id: userId, requested_id: user.id }; // replace with actual requester_id and requested_id
+        const data = { requester_id: userId, requested_id: user.id }; 
         const response = await fetch('http://10.129.3.45:5555/friend_requests', {
           method: 'POST',
           headers: {
