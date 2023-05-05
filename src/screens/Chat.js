@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { io } from 'socket.io-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const Chat = ({ route }) => {
   const { relationship, otherUser, userInfo } = route.params;
@@ -11,24 +14,53 @@ const Chat = ({ route }) => {
   console.log(otherUser);
   console.log(`chat user info ${userInfo}`)
 
-  useEffect(() => {
-    socketRef.current = io('http://10.129.3.45:5555'); // replace with your server's URL
+  const storeMessages = async (messages) => {
+    try {
+      const jsonValue = JSON.stringify(messages);
+      await AsyncStorage.setItem(`messages_${relationship.id}`, jsonValue);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  
+  const loadMessages = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(`messages_${relationship.id}`);
+      return jsonValue ? JSON.parse(jsonValue) : [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  };
 
+  useEffect(() => {
+    (async () => {
+      const storedMessages = await loadMessages();
+      setMessages(storedMessages);
+    })();
+  
+    socketRef.current = io('http://10.129.3.45:5555'); // replace with your server's URL
+  
     // Join the chat room for this relationship
     socketRef.current.emit('join_chat', { relationshipId: relationship.id });
-
+  
     // Load the initial messages for this chat
     socketRef.current.emit('load_chat', { relationshipId: relationship.id });
-
+  
     // Update messages when 'load_messages' event is received
     socketRef.current.on('load_chat', (data) => {
       setMessages(data);
+      storeMessages(data);
     });
-
+  
     socketRef.current.on('new_message', (data) => {
-        setMessages((prevMessages) => [...prevMessages, data]);
+      setMessages((prevMessages) => {
+        const newMessages = [...prevMessages, data];
+        storeMessages(newMessages);
+        return newMessages;
       });
-
+    });
+  
     // Clean up the effect
     return () => socketRef.current.disconnect();
   }, [relationship.id, socketRef]);
@@ -38,18 +70,20 @@ const Chat = ({ route }) => {
     socketRef.current.emit('send_message', {
       relationshipId: relationship.id,
       message: inputText,
-      user_1:userInfo.user_data.id,
-      user_2:otherUser.id,
+      user_1: userInfo.user_data.id,
+      user_2: otherUser.id,
     });
-
+  
     // Clear the input field
     setInputText('');
   };
+  
 
   console.log(messages.length > 0 ? messages[0] : 'No messages');
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    style={styles.container}>
     <ScrollView>
       <View style={styles.messagesContainer}>
         {messages.map((message, index) => (
@@ -61,7 +95,20 @@ const Chat = ({ route }) => {
           </View>
         ))}
       </View>
-      <View style={styles.inputContainer}>
+      {/* <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Type your message here..."
+          value={inputText}
+          onChangeText={setInputText}
+          onSubmitEditing={handleSend}
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View> */}
+    </ScrollView>
+    <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
           placeholder="Type your message here..."
@@ -73,7 +120,6 @@ const Chat = ({ route }) => {
           <Text style={styles.sendButtonText}>Send</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
     </KeyboardAvoidingView>
   );
 };

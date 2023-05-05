@@ -9,12 +9,19 @@ const MessageContact = ({ relationship, userInfo, navigation }) => {
 
   return (
     <View>
-      <Text>
-        {otherUser.first_name} {otherUser.last_name} ({relationship.relationship_type})
-      </Text>
-      <ChatButton onPress={() => navigation.navigate('Chat', { relationship, otherUser, userInfo })} />
-    </View>
+    <Text style={styles.name}>{otherUser.first_name} {otherUser.last_name}</Text>
+    <Text style={styles.relationshipType}> ({relationship.relationship_type})</Text>
+    <ChatButton onPress={() => navigation.navigate('Chat', { relationship, otherUser, userInfo })} />
+  </View>
   );
 };
-
+const styles = {
+    name: {
+      fontSize: 20, // Adjust the size as needed
+      fontWeight: 'bold',
+    },
+    relationshipType: {
+      fontSize: 16, // Adjust the size as needed
+    },
+  };
 export default MessageContact;

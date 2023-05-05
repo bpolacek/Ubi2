@@ -54,7 +54,7 @@ const SignUps = () => {
       const onCreateAccountPressed = async () => {
           const responseStatus = await signUp(firstName, lastName, email, phoneNumber, password);
           if (responseStatus === 200) {
-            navigation.navigate('Confirm Email');
+            navigation.navigate('Sign In');
           } else {
             console.warn('Error signing up');
           }

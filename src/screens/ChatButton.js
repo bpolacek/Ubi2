@@ -11,9 +11,11 @@ const ChatButton = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#f5793b',
     padding: 10,
     borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   buttonText: {
     color: 'white',
