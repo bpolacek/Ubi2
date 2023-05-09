@@ -2,8 +2,8 @@ import { Config } from "aws-sdk";
 import { Amplify, Auth, Storage } from 'aws-amplify';
 
 Config.update({
-  accessKeyId: "AKIAZ4MKDM6ZPW6AYNKP",
-  secretAccessKey: "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",
+  accessKeyId: "ACCESS KEY",
+  secretAccessKey: "SECRET ACCESS KEY",
   region: "us-east-2",
 });
 
