@@ -120,7 +120,8 @@ class Message(db.Model, SerializerMixin):
             'id':self.id,
             'message':self.message,
             'user_1':self.user_1,
-            'user_2':self.user_2
+            'user_2':self.user_2,
+            'timestamp': self.created_at.isoformat() if self.created_at else None
         }
 
 class FriendRequest(db.Model, SerializerMixin):

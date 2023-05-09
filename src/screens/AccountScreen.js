@@ -5,6 +5,7 @@ import CustomInput from "../components/CustomInput/CustomInput";
 import CustomButton from "../components/CustomButton";
 import * as ImagePicker from "expo-image-picker";
 
+
 const AccountScreen = () => {
   const { logout } = useContext(AuthContext);
   const [imageSource, setImageSource] = useState(null);

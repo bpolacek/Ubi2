@@ -55,6 +55,7 @@ const Chat = ({ route }) => {
   
     socketRef.current.on('new_message', (data) => {
       setMessages((prevMessages) => {
+        data.timestamp=new Date(data.timestamp);
         const newMessages = [...prevMessages, data];
         storeMessages(newMessages);
         return newMessages;
@@ -72,6 +73,7 @@ const Chat = ({ route }) => {
       message: inputText,
       user_1: userInfo.user_data.id,
       user_2: otherUser.id,
+      timestamp: Date.now(),
     });
   
     // Clear the input field
@@ -92,6 +94,9 @@ const Chat = ({ route }) => {
             message.user_1 === userInfo.user_data.id ? styles.myMessage : styles.otherUserMessage
           ]}>
             <Text style={styles.messageText}>{message.message}</Text>
+            <Text style={styles.timestampText}>
+              {new Date(message.timestamp).toLocaleString()}
+            </Text>
           </View>
         ))}
       </View>
@@ -162,6 +167,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  timestampText: {
+    fontSize: 12,
+    color: 'gray',
+    alignSelf: 'flex-end',
   },
 });
 
