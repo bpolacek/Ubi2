@@ -29,7 +29,7 @@ const [pending, setPending]= useState(false)
       return;
     }
         const data = { requester_id: userId, requested_id: user.id }; 
-        const response = await fetch('http://10.129.3.45:5555/friend_requests', {
+        const response = await fetch('http://192.168.1.30:5555/friend_requests', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

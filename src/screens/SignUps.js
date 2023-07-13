@@ -19,7 +19,7 @@ const SignUps = () => {
     async function signUp(firstName, lastName, email, phoneNumber, password) {
         
         try {
-          const response = await fetch('http://10.129.3.45:5555/signup', {
+          const response = await fetch('http://192.168.1.30:5555/signup', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',

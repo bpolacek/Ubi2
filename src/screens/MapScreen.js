@@ -36,7 +36,7 @@ const MapScreen = () => {
 
   const fetchRelationships = async () => {
     try {
-      const response = await fetch('http://10.129.3.45:5555/relationships'); // Replace with your endpoint
+      const response = await fetch('http://192.168.1.30:5555/relationships'); // Replace with your endpoint
       const data = await response.json();
       const filteredRelationships = data.filter(relationship =>
         relationship.users.some(user => user && user.id === userInfo.user_data.id) &&
@@ -70,7 +70,7 @@ const MapScreen = () => {
       }
   
       try {
-        const response = await fetch(`http://10.129.3.45:5555/users/${userId}`, {
+        const response = await fetch(`http://192.168.1.30:5555/users/${userId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

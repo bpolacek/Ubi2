@@ -270,7 +270,8 @@ def handle_delete_message(data):
         emit('message_deleted', {'id': data['id']}, broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5555, debug=True, host="10.129.3.45")   
+    socketio.run(app, port=5555, debug=True, host="192.168.1.30")   
 
-    # Home IP: http://192.168.86.120
+    # Home IP: http://192.168.1.30
 # Flatiron IP: http://10.129.3.45:5555
+

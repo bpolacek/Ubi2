@@ -27,7 +27,7 @@ const RelationshipsScreen = () => {
   const { userInfo } = useContext(AuthContext);
   // console.log(userInfo.user_data.id);
 
-  const url = 'http://10.129.3.45:5555/users'
+  const url = 'http://192.168.1.30:5555/users'
   // const authToken = AsyncStorage.getItem('authToken');
 useEffect(() =>{
   fetch(url)
@@ -89,7 +89,7 @@ useEffect(() =>{
   }, []);
 
   useEffect(() => {
-    fetch('http://10.129.3.45:5555/relationships')
+    fetch('http://192.168.1.30:5555/relationships')
       .then(response => response.json())
       .then(data => {
         // Filter the relationships to only include those where the current user id is found in the users attribute
@@ -103,7 +103,7 @@ useEffect(() =>{
 
   useEffect(() => {
    
-    fetch('http://10.129.3.45:5555/friend_requests')
+    fetch('http://192.168.1.30:5555/friend_requests')
       .then(response => response.json())
       .then(data => {
         // Filter the requests to only include those where the requested user id matches the userInfo id

@@ -12,7 +12,7 @@ export const AuthProvider = ({children}) =>{
     const login = async(email, password) =>{
         setIsLoading(true);
         try{
-            const response = await fetch('http://10.129.3.45:5555/login', {
+            const response = await fetch('http://192.168.1.30:5555/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type':'application/json'
@@ -58,7 +58,7 @@ export const AuthProvider = ({children}) =>{
         console.log('Token:', userToken)
         if (userToken) {
           try {
-            const response = await fetch('http://10.129.3.45:5555/protected', {
+            const response = await fetch('http://192.168.1.30:5555/protected', {
               headers: {
                 Authorization: `Bearer ${userToken}`
               }

@@ -10,7 +10,7 @@ const Request = ({request = null}) => {
 
     const handleAccept = async () => {
       try {
-        const response = await fetch(`http://10.129.3.45:5555/friend_requests/${request.id}/response`, {
+        const response = await fetch(`http://192.168.1.30:5555/friend_requests/${request.id}/response`, {
           method: 'PUT',
           headers: {
             Accept: 'application/json',
@@ -27,7 +27,7 @@ const Request = ({request = null}) => {
 
     const handleReject = async () => {
       try {
-        const response = await fetch(`http://10.129.3.45:5555/friend_requests/${request.id}/response`, {
+        const response = await fetch(`http://192.168.1.30:5555/friend_requests/${request.id}/response`, {
           method: 'PUT',
           headers: {
             Accept: 'application/json',

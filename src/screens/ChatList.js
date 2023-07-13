@@ -10,7 +10,7 @@ const ChatList = ({navigation, route}) => {
     const { userInfo } = useContext(AuthContext);
 
     useEffect(() => {
-        fetch('http://10.129.3.45:5555/relationships')
+        fetch('http://192.168.1.30:5555/relationships')
           .then(response => response.json())
           .then(data => {
             // Filter the relationships to only include those where the current user id is found in the users attribute
@@ -28,7 +28,7 @@ const ChatList = ({navigation, route}) => {
         return recordId ? recordId.toString() : index.toString();
       };
     useEffect(() => {
-        const socket = io('http://10.129.3.45:5555');
+        const socket = io('http://192.168.1.30:5555');
     
         // Fetch messages
         socket.emit('get_messages');

@@ -8,7 +8,7 @@ const MessagesScreen = () => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const socket = io('http://10.129.3.45:5555'); // replace with your server's URL
+    const socket = io('http://192.168.1.30:5555'); // replace with your server's URL
 
     // Fetch messages
     socket.emit('get_messages');

@@ -31,7 +31,7 @@ const Relationship = ({ relationship = null, userInfo }) => {
 
   const deleteRelationship = async () => {
     const response = await fetch(
-      `http://10.129.3.45:5555/relationships/${relationship.id}`,
+      `http://192.168.1.30:5555/relationships/${relationship.id}`,
       {
         method: 'DELETE',
         headers: {

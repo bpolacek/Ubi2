@@ -39,7 +39,7 @@ const Chat = ({ route }) => {
       setMessages(storedMessages);
     })();
   
-    socketRef.current = io('http://10.129.3.45:5555'); 
+    socketRef.current = io('http://192.168.1.30:5555'); 
   
     // Join the chat room for this relationship
     socketRef.current.emit('join_chat', { relationshipId: relationship.id });

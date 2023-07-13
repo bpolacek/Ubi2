@@ -5,7 +5,7 @@ import { io } from 'socket.io-client';
 
 const MessageContact = ({ relationship, userInfo, navigation }) => {
   const otherUser = relationship.users.find(user => user.id !== userInfo.user_data.id);
-  const socket = io('http://10.129.3.45:5555');
+  const socket = io('http://192.168.1.30:5555');
 
   return (
     <View>
